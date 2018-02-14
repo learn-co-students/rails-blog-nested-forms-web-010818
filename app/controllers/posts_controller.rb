@@ -1,3 +1,4 @@
+require 'pry'
 class PostsController < ApplicationController
   before_action :set_post, only: [:show, :edit, :update, :destroy]
 
@@ -27,6 +28,8 @@ class PostsController < ApplicationController
     @post = Post.new(post_params)
     respond_to do |format|
       if @post.save
+        @tag = Tag.create(tag_params)
+        @newpost_tag = PostTag.create(tag_id: @tag.id, post_id: @post.id)
         format.html { redirect_to @post, notice: 'Post was successfully created.' }
         format.json { render action: 'show', status: :created, location: @post }
       else
@@ -41,6 +44,9 @@ class PostsController < ApplicationController
   def update
     respond_to do |format|
       if @post.update(post_params)
+        @tag = Tag.create(tag_params)
+        @newpost_tag = PostTag.create(tag_id: @tag.id, post_id: @post.id)
+        @post.save
         format.html { redirect_to @post, notice: 'Post was successfully updated.' }
         format.json { head :no_content }
       else
@@ -69,5 +75,9 @@ class PostsController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def post_params
       params.require(:post).permit(:name, :content, :tag_ids => [])
+    end
+
+    def tag_params
+      params.require(:tags).permit(:name)
     end
 end
